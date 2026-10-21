@@ -1,0 +1,73 @@
+@extends('layouts.app')
+@section('title', 'Panorama general')
+@section('body-class', 'dashboard-page')
+@section('content')
+<div class="app-shell">
+    <button type="button" class="sidebar-backdrop" data-sidebar-close aria-label="Cerrar menú"></button>
+    <aside class="sidebar" id="sidebar">
+        <a href="{{ route('dashboard') }}" class="sidebar-brand" aria-label="EIYA Estrategia, panorama general"><x-brand :light="true" /></a>
+        <div class="workspace-label"><span class="status-dot"></span> GESTIÓN DE PROYECTOS</div>
+        <div class="nav-caption">ESPACIO DE TRABAJO</div>
+        <nav class="main-nav" aria-label="Navegación principal">
+            <a href="{{ route('dashboard') }}" class="nav-item active" aria-current="page"><x-icon name="grid" /><span>Panorama general</span></a>
+            <a href="#projects" class="nav-item" data-projects-link><x-icon name="folder" /><span>Proyectos</span><span class="nav-count">{{ count($projects) }}</span></a>
+            <button type="button" class="nav-item" data-dialog-open="team-dialog"><x-icon name="users" /><span>Equipo</span></button>
+            <a href="#activity" class="nav-item"><x-icon name="activity" /><span>Actividad</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="sidebar-manifesto"><img src="{{ asset('images/brand/symbol-0.png') }}" alt="" width="32" height="33"><p>Imagine.<br>Structure.<br><em>Transform.</em></p><span>El valor está en el camino.</span></div>
+            <div class="sidebar-user"><span class="avatar user-avatar">AD</span><div><strong>{{ auth()->user()->name }}</strong><small>Equipo EIYA</small></div><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="icon-button logout-button" aria-label="Cerrar sesión" title="Cerrar sesión"><x-icon name="logout" :size="18" /></button></form></div>
+        </div>
+    </aside>
+    <div class="workspace">
+        <header class="topbar"><div class="breadcrumb"><button type="button" class="icon-button mobile-menu" data-sidebar-open aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><x-icon name="menu" /></button><span>Espacio de trabajo</span><x-icon name="chevron" :size="12" /><strong>Panorama general</strong></div><div class="topbar-right"><span class="demo-pill"><span></span> Vista de demostración</span><span class="topbar-avatar" title="{{ auth()->user()->name }}">AD</span></div></header>
+        <main id="main" class="dashboard-content">
+            <section class="page-heading"><div><div class="eyebrow">DIRECCIÓN CLARA. EVOLUCIÓN CONTINUA.</div><h1>Un panorama de lo que construimos.</h1><p>Cada proyecto, una oportunidad para transformar con propósito.</p></div><div class="today"><x-icon name="calendar" :size="17" /><span>{{ now()->translatedFormat('d \d\e F, Y') }}</span></div></section>
+
+            <section class="panorama" aria-label="Mensaje de bienvenida"><img src="{{ asset('images/brand/eiya-mountains.png') }}" alt="Cordillera mineral entre montañas y niebla" fetchpriority="high"><div class="panorama-copy"><span class="eyebrow">DE LA VISIÓN A LA ACCIÓN</span><h2>La transformación comienza<br>con una mejor estrategia.</h2><a href="#projects">Explorar nuestros proyectos <x-icon name="arrow" :size="17" /></a></div><div class="panorama-caption">IMAGINE. STRUCTURE. TRANSFORM.<span>EIYA / PROYECTOS</span></div></section>
+
+            <section class="metrics" aria-label="Indicadores de demostración">
+                <article class="metric"><div class="metric-top"><span>Proyectos activos</span><x-icon name="folder" :size="18" /></div><div class="metric-value">{{ str_pad($activeProjects, 2, '0', STR_PAD_LEFT) }}<span class="metric-detail sage-text">En movimiento</span></div><p>Iniciativas que están tomando forma</p></article>
+                <article class="metric"><div class="metric-top"><span>Avance general</span><x-icon name="chart" :size="18" /></div><div class="metric-value">{{ $averageProgress }}<small>%</small><span class="mini-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><p>Promedio de nuestro portafolio</p></article>
+                <article class="metric"><div class="metric-top"><span>Próximos hitos</span><x-icon name="clock" :size="18" /></div><div class="metric-value">03<span class="metric-detail">En los próximos 7 días</span></div><p>Decisiones que hacen avanzar</p></article>
+                <article class="metric"><div class="metric-top"><span>Proyectos completados</span><x-icon name="check" :size="18" /></div><div class="metric-value">{{ str_pad($completedProjects, 2, '0', STR_PAD_LEFT) }}<span class="metric-detail sage-text"><span class="status-dot"></span> Objetivo alcanzado</span></div><p>Capacidades que dejan huella</p></article>
+            </section>
+
+            <div class="dashboard-grid">
+                <section class="projects-panel" id="projects" aria-labelledby="projects-heading">
+                    <div class="section-heading"><div><span class="eyebrow">NUESTRO PORTAFOLIO</span><h2 id="projects-heading">Proyectos en evolución</h2></div><span class="record-count">{{ count($projects) }} proyectos</span></div>
+                    <div class="project-toolbar"><div class="project-tabs" role="group" aria-label="Filtrar por estado"><button type="button" class="tab active" data-filter="all" aria-pressed="true">Todos <span>{{ count($projects) }}</span></button><button type="button" class="tab" data-filter="active" aria-pressed="false">En curso</button><button type="button" class="tab" data-filter="completed" aria-pressed="false">Completados</button></div><label class="project-search"><x-icon name="search" :size="16" /><input type="search" id="project-search" placeholder="Buscar proyecto…" aria-label="Buscar proyecto o cliente"></label></div>
+                    <div class="project-table-wrap"><table class="project-table"><thead><tr><th scope="col">PROYECTO / CLIENTE</th><th scope="col">ETAPA</th><th scope="col">AVANCE</th><th scope="col">EQUIPO</th><th scope="col"><span class="sr-only">Detalle</span></th></tr></thead><tbody>
+                    @foreach ($projects as $project)
+                        <tr data-project-row data-state="{{ $project['progress'] === 100 ? 'completed' : 'active' }}" data-search="{{ $project['name'].' '.$project['client'].' '.$project['line'] }}">
+                            <td><div class="project-identity"><span class="project-monogram tone-{{ $project['tone'] }}">{{ $project['initials'] }}</span><div><button type="button" class="project-name" data-dialog-open="project-{{ $project['id'] }}">{{ $project['name'] }}</button><p>{{ $project['client'] }} <span>·</span> {{ $project['line'] }}</p></div></div></td>
+                            <td><span class="stage-badge tone-{{ $project['tone'] }}"><span></span>{{ $project['stage'] }}</span></td>
+                            <td><div class="progress-cell"><span>{{ $project['progress'] }}%</span><div class="progress-track" role="progressbar" aria-label="Avance de {{ $project['name'] }}" aria-valuenow="{{ $project['progress'] }}" aria-valuemin="0" aria-valuemax="100"><i style="width: {{ $project['progress'] }}%"></i></div></div></td>
+                            <td><div class="avatar-stack">@foreach ($project['team'] as $member)<span class="avatar member-{{ $member }}">{{ $member }}</span>@endforeach</div></td>
+                            <td><button type="button" class="icon-button project-arrow" aria-label="Ver {{ $project['name'] }}" data-dialog-open="project-{{ $project['id'] }}"><x-icon name="arrow" :size="17" /></button></td>
+                        </tr>
+                    @endforeach
+                    </tbody></table></div>
+                    <div class="empty-projects" hidden>No encontramos proyectos con esos criterios.</div>
+                    <div class="table-footer"><span><span class="status-dot"></span> {{ count($projects) }} proyectos de ejemplo</span><span>Comprender para avanzar.</span></div>
+                </section>
+
+                <aside class="milestones" aria-labelledby="milestones-heading"><div class="section-heading"><div><span class="eyebrow">LO QUE SIGUE</span><h2 id="milestones-heading">Próximos hitos</h2></div><x-icon name="calendar" :size="19" /></div><div class="milestone-list">
+                    <button type="button" class="milestone" data-dialog-open="project-EI-003"><span class="milestone-date">24<small>OCT</small></span><span><strong>Validación del piloto</strong><small>Arboleda · Labs</small><span class="milestone-tag">Entrega</span></span><x-icon name="chevron" :size="14" /></button>
+                    <button type="button" class="milestone" data-dialog-open="project-EI-001"><span class="milestone-date">26<small>OCT</small></span><span><strong>Sesión de prioridades</strong><small>Grupo Horizonte · Advisory</small><span class="milestone-tag">Sesión de trabajo</span></span><x-icon name="chevron" :size="14" /></button>
+                    <button type="button" class="milestone" data-dialog-open="project-EI-002"><span class="milestone-date">27<small>OCT</small></span><span><strong>Revisión de diagnóstico</strong><small>Norte Industrial · Framework</small><span class="milestone-tag">Revisión</span></span><x-icon name="chevron" :size="14" /></button>
+                </div><p class="milestones-note">Pequeños pasos. Dirección compartida.</p></aside>
+            </div>
+
+            <div class="dashboard-lower"><section class="method-panel" aria-labelledby="method-heading"><div class="section-heading"><div><span class="eyebrow">UN MÉTODO, UN CAMINO</span><h2 id="method-heading">De comprender a evolucionar.</h2></div><span class="method-caption">Nuestro enfoque de intervención</span></div><div class="method-stages">@foreach (['Comprender' => 'Diagnóstico y evidencia', 'Estructurar' => 'Prioridades y gobierno', 'Implementar' => 'Pilotos y adopción', 'Evolucionar' => 'Medición y mejora'] as $stage => $description)<div><span class="method-number">0{{ $loop->iteration }}</span><strong>{{ $stage }}</strong><p>{{ $description }}</p></div>@endforeach</div></section>
+            <section class="activity-panel" id="activity" aria-labelledby="activity-heading"><span class="eyebrow">ACTIVIDAD RECIENTE</span><h2 id="activity-heading">El trabajo deja señales.</h2><div class="activity-entry"><span class="avatar member-AM">AM</span><p><strong>Ana Martínez</strong> actualizó la hoja de ruta.<small>Grupo Horizonte · Hace 2 horas · Ejemplo</small></p></div></section></div>
+            <footer class="dashboard-footer"><span>© {{ now()->year }} EIYA Estrategia <span>·</span> Espacio de trabajo</span><span>Datos de demostración · Sin conexión a proyectos reales</span></footer>
+        </main>
+    </div>
+</div>
+
+@foreach ($projects as $project)
+<dialog class="detail-dialog" id="project-{{ $project['id'] }}" aria-labelledby="title-{{ $project['id'] }}"><div class="dialog-top"><span class="eyebrow">{{ $project['id'] }} / {{ $project['line'] }}</span><button type="button" class="icon-button" data-dialog-close aria-label="Cerrar detalle"><x-icon name="close" /></button></div><span class="demo-pill">Proyecto de demostración</span><h2 id="title-{{ $project['id'] }}">{{ $project['name'] }}</h2><p class="dialog-client">{{ $project['client'] }}</p><p class="dialog-description">{{ $project['description'] }}</p><dl class="project-facts"><div><dt>Responsable</dt><dd>{{ $project['owner'] }}</dd></div><div><dt>Etapa actual</dt><dd>{{ $project['stage'] }}</dd></div><div><dt>Estado</dt><dd>{{ $project['status'] }}</dd></div><div><dt>Próxima entrega</dt><dd>{{ $project['due'] }} · Ejemplo</dd></div></dl><div class="dialog-progress"><span>Avance del proyecto <strong>{{ $project['progress'] }}%</strong></span><div class="progress-track"><i style="width: {{ $project['progress'] }}%"></i></div></div><p class="dialog-note"><x-icon name="info" :size="16" /> Los datos de esta vista son ilustrativos.</p></dialog>
+@endforeach
+<dialog class="detail-dialog" id="team-dialog" aria-labelledby="team-heading"><div class="dialog-top"><span class="eyebrow">PERSONAS QUE TRANSFORMAN</span><button type="button" class="icon-button" data-dialog-close aria-label="Cerrar equipo"><x-icon name="close" /></button></div><h2 id="team-heading">Nuestro equipo</h2><p class="dialog-description">Un equipo de ejemplo para imaginar cómo trabajaremos juntos.</p>@foreach (['AM' => ['Ana Martínez', 'Estrategia y dirección'], 'CR' => ['Carlos Rivera', 'Gobierno y procesos'], 'LS' => ['Lucía Salazar', 'Tecnología y adopción']] as $initials => $person)<div class="team-person"><span class="avatar member-{{ $initials }}">{{ $initials }}</span><div><strong>{{ $person[0] }}</strong><p>{{ $person[1] }}</p></div></div>@endforeach<p class="dialog-note">Equipo de demostración · Datos ilustrativos</p></dialog>
+@endsection
