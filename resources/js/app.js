@@ -108,3 +108,42 @@ document.addEventListener('keydown', (event) => {
 });
 window.addEventListener('resize', syncSidebar);
 syncSidebar();
+
+// Keep uploads local until the person chooses to save the form.
+document.querySelectorAll('[data-image-upload]').forEach((upload) => {
+    const input = upload.querySelector('[data-image-input]');
+    const preview = upload.querySelector('[data-image-preview]');
+    const originalPreview = preview.innerHTML;
+    const message = upload.querySelector('[data-upload-message]');
+    const originalMessage = message.textContent;
+    const permission = upload.closest('form').querySelector('[data-photo-permission]');
+    let previewUrl;
+    input.addEventListener('change', () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        input.setCustomValidity('');
+        preview.innerHTML = originalPreview;
+        message.textContent = originalMessage;
+        const file = input.files[0];
+        if (permission) {
+            permission.hidden = !file;
+            const checkbox = permission.querySelector('input');
+            checkbox.required = Boolean(file);
+            checkbox.checked = false;
+        }
+        if (!file) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 3 * 1024 * 1024) {
+            const error = 'Elige una imagen JPG, PNG o WebP de hasta 3 MB.';
+            input.setCustomValidity(error);
+            message.textContent = error;
+            input.reportValidity();
+            return;
+        }
+        previewUrl = URL.createObjectURL(file);
+        const image = document.createElement('img');
+        image.src = previewUrl;
+        image.alt = 'Vista previa de la imagen elegida';
+        preview.replaceChildren(image);
+        message.textContent = 'Así se verá al guardar.';
+    });
+});
+document.querySelector('[data-form-errors]')?.focus();

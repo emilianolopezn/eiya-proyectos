@@ -1,0 +1,19 @@
+@extends('layouts.app')
+@section('title', $contact->exists ? 'Cuidar su contacto' : 'Sumar una persona')
+@section('body-class', 'dashboard-page')
+@section('content')
+<x-workspace :title="$contact->exists ? 'Cuidar su contacto' : 'Sumar una persona'">
+    <a class="back-link" href="{{ route('clients.show', $client) }}"><x-icon name="arrow" :size="16" />Volver a {{ $client->name }}</a>
+    <section class="page-heading"><div><div class="eyebrow">{{ $client->name }} / LAS PERSONAS DETRÁS</div><h1>{{ $contact->exists ? 'Los detalles nos ayudan a estar cerca.' : 'Cada persona merece ser reconocida.' }}</h1><p>Más que un contacto, alguien con quien escucharnos, aprender y construir.</p></div></section>
+    <form class="relationship-form contact-form" method="POST" action="{{ $contact->exists ? route('contacts.update', [$client, $contact]) : route('contacts.store', $client) }}" enctype="multipart/form-data">@csrf @if($contact->exists) @method('PUT') @endif<x-form-errors />
+        <div class="form-section-heading"><span class="eyebrow">SU NOMBRE, SU ROSTRO, SU HISTORIA</span><h2>Conozcámosle un poco mejor.</h2><p>Solo necesitamos su nombre para empezar. Los demás detalles pueden llegar después.</p></div>
+        <div class="form-two-columns"><div class="field"><label for="name">¿Cómo se llama? *</label><input id="name" name="name" value="{{ old('name', $contact->name) }}" required maxlength="255" placeholder="Su nombre y apellido" autocomplete="name"></div><div class="field"><label for="role">¿Qué aporta al equipo?</label><input id="role" name="role" value="{{ old('role', $contact->role) }}" maxlength="255" placeholder="Su rol o responsabilidad" autocomplete="organization-title"></div></div>
+        <div class="form-two-columns"><div class="field"><label for="email">Su correo</label><input id="email" type="email" name="email" value="{{ old('email', $contact->email) }}" maxlength="255" placeholder="Para seguir en contacto" autocomplete="email"></div><div class="field"><label for="phone">Su teléfono</label><input id="phone" type="tel" name="phone" value="{{ old('phone', $contact->phone) }}" maxlength="60" placeholder="Con código de país, si hace falta" autocomplete="tel"></div></div>
+        <div class="image-upload" data-image-upload><span class="upload-preview person-preview" data-image-preview>@if($contact->photo_path)<img src="{{ route('contacts.photo', [$client, $contact]) }}" alt="Foto actual de {{ $contact->name }}">@else<x-icon name="camera" :size="26" />@endif</span><div><label for="photo">Una foto para reconocerle</label><p>JPG, PNG o WebP · Hasta 3 MB</p><input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" data-image-input><small data-upload-message aria-live="polite">{{ $contact->photo_path ? 'Elige una nueva foto si quieres actualizarla.' : 'No hace falta tenerla ahora. Podemos sumarla después.' }}</small></div></div>
+        <label class="photo-permission" data-photo-permission hidden><input type="checkbox" name="photo_authorized" value="1"><span>Esta persona me autorizó a guardar y usar su foto en este espacio.</span></label>
+        <x-photo-reminder />
+        <div class="field"><label for="notes">Detalles que nos ayudan a acompañarle</label><textarea id="notes" name="notes" rows="4" maxlength="10000" placeholder="Cómo prefiere que le llamemos, qué le entusiasma, su forma de comunicarse o algo que nos haya compartido…">{{ old('notes', $contact->notes) }}</textarea></div>
+        <div class="form-actions"><a class="text-link" href="{{ route('clients.show', $client) }}">Volver sin guardar</a><button type="submit" class="button button-dark">{{ $contact->exists ? 'Guardar sus detalles' : 'Guardar su contacto' }}<x-icon name="arrow" :size="17" /></button></div>
+    </form>
+</x-workspace>
+@endsection

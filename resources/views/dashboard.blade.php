@@ -2,29 +2,10 @@
 @section('title', 'Panorama general')
 @section('body-class', 'dashboard-page')
 @section('content')
-<div class="app-shell">
-    <button type="button" class="sidebar-backdrop" data-sidebar-close aria-label="Cerrar menú"></button>
-    <aside class="sidebar" id="sidebar">
-        <a href="{{ route('dashboard') }}" class="sidebar-brand" aria-label="EIYA Estrategia, panorama general"><x-brand :light="true" /></a>
-        <div class="workspace-label"><span class="status-dot"></span> GESTIÓN DE PROYECTOS</div>
-        <div class="nav-caption">ESPACIO DE TRABAJO</div>
-        <nav class="main-nav" aria-label="Navegación principal">
-            <a href="{{ route('dashboard') }}" class="nav-item active" aria-current="page"><x-icon name="grid" /><span>Panorama general</span></a>
-            <a href="#projects" class="nav-item" data-projects-link><x-icon name="folder" /><span>Proyectos</span><span class="nav-count">{{ count($projects) }}</span></a>
-            <button type="button" class="nav-item" data-dialog-open="team-dialog"><x-icon name="users" /><span>Equipo</span></button>
-            <a href="#activity" class="nav-item"><x-icon name="activity" /><span>Actividad</span></a>
-        </nav>
-        <div class="sidebar-bottom">
-            <div class="sidebar-manifesto"><img src="{{ asset('images/brand/symbol-0.png') }}" alt="" width="32" height="33"><p>Imagine.<br>Structure.<br><em>Transform.</em></p><span>El valor está en el camino.</span></div>
-            <div class="sidebar-user"><span class="avatar user-avatar">AD</span><div><strong>{{ auth()->user()->name }}</strong><small>Equipo EIYA</small></div><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="icon-button logout-button" aria-label="Cerrar sesión" title="Cerrar sesión"><x-icon name="logout" :size="18" /></button></form></div>
-        </div>
-    </aside>
-    <div class="workspace">
-        <header class="topbar"><div class="breadcrumb"><button type="button" class="icon-button mobile-menu" data-sidebar-open aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><x-icon name="menu" /></button><span>Espacio de trabajo</span><x-icon name="chevron" :size="12" /><strong>Panorama general</strong></div><div class="topbar-right"><span class="demo-pill"><span></span> Vista de demostración</span><span class="topbar-avatar" title="{{ auth()->user()->name }}">AD</span></div></header>
-        <main id="main" class="dashboard-content">
+<x-workspace title="Panorama general" :demo="true">
             <section class="page-heading"><div><div class="eyebrow">DIRECCIÓN CLARA. EVOLUCIÓN CONTINUA.</div><h1>Un panorama de lo que construimos.</h1><p>Cada proyecto, una oportunidad para transformar con propósito.</p></div><div class="today"><x-icon name="calendar" :size="17" /><span>{{ now()->translatedFormat('d \d\e F, Y') }}</span></div></section>
 
-            <section class="panorama" aria-label="Mensaje de bienvenida"><img src="{{ asset('images/brand/eiya-mountains.png') }}" alt="Cordillera mineral entre montañas y niebla" fetchpriority="high"><div class="panorama-copy"><span class="eyebrow">DE LA VISIÓN A LA ACCIÓN</span><h2>La transformación comienza<br>con una mejor estrategia.</h2><a href="#projects">Explorar nuestros proyectos <x-icon name="arrow" :size="17" /></a></div><div class="panorama-caption">IMAGINE. STRUCTURE. TRANSFORM.<span>EIYA / PROYECTOS</span></div></section>
+            <section class="panorama" aria-label="Mensaje de bienvenida"><img src="{{ asset('images/brand/eiya-mountains.png') }}" alt="Cordillera mineral entre montañas y niebla" fetchpriority="high"><div class="panorama-copy"><span class="eyebrow">DE LA VISIÓN A LA ACCIÓN</span><h2>La transformación comienza<br>con una mejor estrategia.</h2><a href="{{ route('clients.index') }}">Conocer a nuestros clientes <x-icon name="arrow" :size="17" /></a></div><div class="panorama-caption">IMAGINE. STRUCTURE. TRANSFORM.<span>EIYA / PROYECTOS</span></div></section>
 
             <section class="metrics" aria-label="Indicadores de demostración">
                 <article class="metric"><div class="metric-top"><span>Proyectos activos</span><x-icon name="folder" :size="18" /></div><div class="metric-value">{{ str_pad($activeProjects, 2, '0', STR_PAD_LEFT) }}<span class="metric-detail sage-text">En movimiento</span></div><p>Iniciativas que están tomando forma</p></article>
@@ -62,10 +43,7 @@
             <div class="dashboard-lower"><section class="method-panel" aria-labelledby="method-heading"><div class="section-heading"><div><span class="eyebrow">UN MÉTODO, UN CAMINO</span><h2 id="method-heading">De comprender a evolucionar.</h2></div><span class="method-caption">Nuestro enfoque de intervención</span></div><div class="method-stages">@foreach (['Comprender' => 'Diagnóstico y evidencia', 'Estructurar' => 'Prioridades y gobierno', 'Implementar' => 'Pilotos y adopción', 'Evolucionar' => 'Medición y mejora'] as $stage => $description)<div><span class="method-number">0{{ $loop->iteration }}</span><strong>{{ $stage }}</strong><p>{{ $description }}</p></div>@endforeach</div></section>
             <section class="activity-panel" id="activity" aria-labelledby="activity-heading"><span class="eyebrow">ACTIVIDAD RECIENTE</span><h2 id="activity-heading">El trabajo deja señales.</h2><div class="activity-entry"><span class="avatar member-AM">AM</span><p><strong>Ana Martínez</strong> actualizó la hoja de ruta.<small>Grupo Horizonte · Hace 2 horas · Ejemplo</small></p></div></section></div>
             <footer class="dashboard-footer"><span>© {{ now()->year }} EIYA Estrategia <span>·</span> Espacio de trabajo</span><span>Datos de demostración · Sin conexión a proyectos reales</span></footer>
-        </main>
-    </div>
-</div>
-
+</x-workspace>
 @foreach ($projects as $project)
 <dialog class="detail-dialog" id="project-{{ $project['id'] }}" aria-labelledby="title-{{ $project['id'] }}"><div class="dialog-top"><span class="eyebrow">{{ $project['id'] }} / {{ $project['line'] }}</span><button type="button" class="icon-button" data-dialog-close aria-label="Cerrar detalle"><x-icon name="close" /></button></div><span class="demo-pill">Proyecto de demostración</span><h2 id="title-{{ $project['id'] }}">{{ $project['name'] }}</h2><p class="dialog-client">{{ $project['client'] }}</p><p class="dialog-description">{{ $project['description'] }}</p><dl class="project-facts"><div><dt>Responsable</dt><dd>{{ $project['owner'] }}</dd></div><div><dt>Etapa actual</dt><dd>{{ $project['stage'] }}</dd></div><div><dt>Estado</dt><dd>{{ $project['status'] }}</dd></div><div><dt>Próxima entrega</dt><dd>{{ $project['due'] }} · Ejemplo</dd></div></dl><div class="dialog-progress"><span>Avance del proyecto <strong>{{ $project['progress'] }}%</strong></span><div class="progress-track"><i style="width: {{ $project['progress'] }}%"></i></div></div><p class="dialog-note"><x-icon name="info" :size="16" /> Los datos de esta vista son ilustrativos.</p></dialog>
 @endforeach
